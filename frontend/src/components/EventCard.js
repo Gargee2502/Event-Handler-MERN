@@ -1,60 +1,77 @@
 // frontend/src/components/EventCard.js
 import React from "react";
-import { useNavigate } from "react-router-dom"; // To go to detail page
+import { useNavigate } from "react-router-dom";
+import "./EventCard.css";
+
+const TYPE_CONFIG = {
+  Hackathon:  { color: "#7c6fcd", bg: "#ede9ff", emoji: "🚀" },
+  Workshop:   { color: "#2d8a4e", bg: "#d4f5e2", emoji: "🤖" },
+  Webinar:    { color: "#c07a00", bg: "#fff0cc", emoji: "💡" },
+  Conference: { color: "#1a6fa8", bg: "#cce8ff", emoji: "☁️" },
+  Seminar:    { color: "#c0392b", bg: "#ffe8e8", emoji: "📚" },
+};
 
 function EventCard({ event, onRegister, userId }) {
   const navigate = useNavigate();
+
+  // ── YOUR ORIGINAL LOGIC (unchanged) ──────────────────────────────────────
   const remainingSeats = event.totalSeats - event.seatsTaken;
 
   const handleRegister = async () => {
     try {
-      await onRegister(event._id, userId); // Call parent function to register and refresh
+      await onRegister(event._id, userId);
     } catch (err) {
       alert(err.response?.data?.message || "Error registering");
     }
   };
+  // ─────────────────────────────────────────────────────────────────────────
+
+  const cfg = TYPE_CONFIG[event.eventType] || { color: "#5b4fcf", bg: "#ede9ff", emoji: "📅" };
 
   return (
-    <div 
-      style={{ 
-        border: "1px solid #ccc", 
-        borderRadius: "8px", 
-        padding: "15px", 
-        margin: "10px", 
-        width: "250px", 
-        backgroundColor: "#f9f9f9", 
-        cursor: "pointer" 
-      }}
-      onClick={() => navigate(`/event/${event._id}`)} // Click card to go to details
+    <div
+      className="ecard"
+      onClick={() => navigate(`/event/${event._id}`)}
     >
-      <img 
-        src={event.eventImage} 
-        alt={event.eventName} 
-        style={{ width: "100%", height: "150px", objectFit: "cover", borderRadius: "8px" }} 
-      />
-      <h3 style={{ color: "#333" }}>{event.eventName}</h3>
-      <p style={{ color: "#666" }}>{event.eventType}</p>
-      <p style={{ color: "#666" }}>{event.date} | {event.time}</p>
-      <p style={{ color: "#666" }}>{event.venue}</p>
-      <p style={{ color: "#666" }}>Speaker: {event.speaker}</p>
-      <p style={{ color: "#666" }}>
-        {event.seatsTaken} / {event.totalSeats} registered
-      </p>
-      <button 
-        disabled={remainingSeats <= 0} 
-        onClick={(e) => { e.stopPropagation(); handleRegister(); }} // Stop card click
-        style={{ 
-          backgroundColor: remainingSeats > 0 ? "#4CAF50" : "#ccc", 
-          color: "white", 
-          padding: "10px", 
-          border: "none", 
-          borderRadius: "5px", 
-          width: "100%", 
-          cursor: remainingSeats > 0 ? "pointer" : "not-allowed" 
-        }}
-      >
-        {remainingSeats > 0 ? "Register" : "Full"}
-      </button>
+      {/* emoji banner */}
+      <div className="ecard__banner" style={{ background: cfg.bg }}>
+        <span className="ecard__emoji">{cfg.emoji}</span>
+      </div>
+
+      <div className="ecard__body">
+        <div className="ecard__top">
+          <h3 className="ecard__title">{event.eventName}</h3>
+          <span className="ecard__tag" style={{ color: cfg.color, background: cfg.bg }}>
+            {event.eventType}
+          </span>
+        </div>
+
+        <div className="ecard__row">
+          <span>📅 {event.date}</span>
+          {event.time && <><span className="ecard__divider">|</span><span>⏰ {event.time}</span></>}
+        </div>
+        <div className="ecard__row">📍 {event.venue}</div>
+        <div className="ecard__row">🎤 Speaker: {event.speaker}</div>
+        <div className="ecard__row">🏫 Organised by: {event.organisedBy}</div>
+
+        <div className="ecard__footer">
+          <button
+            className="ecard__btn"
+            disabled={remainingSeats <= 0}
+            style={
+              remainingSeats > 0
+                ? { background: cfg.color, color: "#fff" }
+                : { background: "#eee", color: "#aaa" }
+            }
+            onClick={(e) => { e.stopPropagation(); handleRegister(); }}
+          >
+            {remainingSeats > 0 ? "Register" : "Full"}
+          </button>
+          <span className="ecard__count">
+            👥 {event.seatsTaken} / {event.totalSeats} registered
+          </span>
+        </div>
+      </div>
     </div>
   );
 }

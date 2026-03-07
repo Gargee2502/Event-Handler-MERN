@@ -2,7 +2,8 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import UserHomePage from "./pages/UserHomePage";
 import EventDetailPage from "./pages/EventDetailPage";
-import RegisteredEventsPage from "./pages/RegisteredEventsPage"; // New
+import RegisteredEventsPage from "./pages/RegisteredEventsPage";
+import "./App.css";
 
 function App() {
   return (
@@ -10,7 +11,7 @@ function App() {
       <Routes>
         <Route path="/" element={<UserHomePage />} />
         <Route path="/event/:id" element={<EventDetailPage />} />
-        <Route path="/my-events" element={<RegisteredEventsPage />} /> {/* Add link to this from profile */}
+        <Route path="/my-events" element={<RegisteredEventsPage />} />
       </Routes>
     </BrowserRouter>
   );
