@@ -1,3 +1,4 @@
+// backend/server.js
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
@@ -7,28 +8,24 @@ const eventRoutes = require("./routes/eventRoutes");
 
 const app = express();
 
-app.use(cors());                    // ← this line must exist
-// or more explicit (better for production later):
-app.use(cors({
-  origin: "http://localhost:3000",  // allow only your frontend
-  credentials: true                 // if you add cookies/auth later
-}));
+// ── Middleware ──────────────────────────────────────────
+app.use(cors({ origin: "http://localhost:3000", credentials: true }));
 app.use(express.json());
 
-/* ROUTES */
+// ── Routes ──────────────────────────────────────────────
 app.use("/api/events", eventRoutes);
 
-/* MongoDB Connection */
-mongoose.connect(process.env.MONGO_URI)
-.then(() => console.log("MongoDB Connected"))
-.catch(err => console.log(err));
-
-/* Server */
-const PORT = process.env.PORT || 5000;
-
-console.log("PORT from environment =", process.env.PORT);
-console.log("Final chosen PORT =", PORT);
-
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+// ── Test route (visit http://localhost:5000/api/test) ───
+app.get("/api/test", (req, res) => {
+  res.json({ message: "Backend is running!" });
 });
+
+// ── MongoDB ─────────────────────────────────────────────
+mongoose
+  .connect(process.env.MONGO_URI)
+  .then(() => console.log("✅ MongoDB Connected"))
+  .catch((err) => console.log("❌ MongoDB Error:", err.message));
+
+// ── Start ────────────────────────────────────────────────
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));

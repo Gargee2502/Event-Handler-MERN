@@ -1,16 +1,18 @@
 // frontend/src/services/eventService.js
 import axios from "axios";
 
-const API = "http://localhost:5000/api/events"; // Change to production URL later
+const API = "http://localhost:5000/api/events";
 
-export const getAllEvents = () => axios.get(API);
+export const getAllEvents  = ()        => axios.get(API);
+export const getEventById = (id)       => axios.get(`${API}/${id}`);
+export const getUserEvents = (userId)  => axios.get(`${API}/user/${userId}`);
+export const markAttended  = (id, uid) => axios.put(`${API}/${id}/attended`, { userId: uid });
 
-export const getEventById = (id) => axios.get(`${API}/${id}`);
+// ── registerForEvent ──────────────────────────────────────────────────
+// formData = { fullName, email, studentId, college, course, year, teamName?, teamSize? }
+export const registerForEvent = (eventId, formData) =>
+  axios.post(`${API}/${eventId}/register`, formData);
 
-export const registerForEvent = (eventId, userId) =>
-  axios.post(`${API}/${eventId}/register`, { userId });
-
-export const getUserEvents = (userId) => axios.get(`${API}/user/${userId}`);
-
-export const markAttended = (eventId, userId) =>
-  axios.put(`${API}/${eventId}/attended`, { userId });
+// ── getUserRegistrations ──────────────────────────────────────────────
+export const getUserRegistrations = (userId) =>
+  axios.get(`${API}/user/${userId}/registrations`);

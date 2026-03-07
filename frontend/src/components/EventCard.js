@@ -1,6 +1,5 @@
 // frontend/src/components/EventCard.js
 import React from "react";
-import { useNavigate } from "react-router-dom";
 import "./EventCard.css";
 
 const TYPE_CONFIG = {
@@ -11,31 +10,15 @@ const TYPE_CONFIG = {
   Seminar:    { color: "#c0392b", bg: "#ffe8e8", emoji: "📚" },
 };
 
-function EventCard({ event, onRegister, userId }) {
-  const navigate = useNavigate();
-
-  // ── YOUR ORIGINAL LOGIC (unchanged) ──────────────────────────────────────
-  const remainingSeats = event.totalSeats - event.seatsTaken;
-
-  const handleRegister = async () => {
-    try {
-      await onRegister(event._id, userId);
-    } catch (err) {
-      alert(err.response?.data?.message || "Error registering");
-    }
-  };
-  // ─────────────────────────────────────────────────────────────────────────
-
-  const cfg = TYPE_CONFIG[event.eventType] || { color: "#5b4fcf", bg: "#ede9ff", emoji: "📅" };
+function EventCard({ event, isRegistered, onOpen, style }) {
+  const cfg   = TYPE_CONFIG[event.eventType] || TYPE_CONFIG.Seminar;
+  const seats = event.totalSeats - event.seatsTaken;
+  const isFull = seats <= 0;
 
   return (
-    <div
-      className="ecard"
-      onClick={() => navigate(`/event/${event._id}`)}
-    >
-      {/* emoji banner */}
+    <div className="ecard" style={style} onClick={onOpen}>
       <div className="ecard__banner" style={{ background: cfg.bg }}>
-        <span className="ecard__emoji">{cfg.emoji}</span>
+        <span style={{ fontSize: 36 }}>{cfg.emoji}</span>
       </div>
 
       <div className="ecard__body">
@@ -48,27 +31,27 @@ function EventCard({ event, onRegister, userId }) {
 
         <div className="ecard__row">
           <span>📅 {event.date}</span>
-          {event.time && <><span className="ecard__divider">|</span><span>⏰ {event.time}</span></>}
+          <span className="ecard__div">|</span>
+          <span>📍 {event.venue}</span>
         </div>
-        <div className="ecard__row">📍 {event.venue}</div>
-        <div className="ecard__row">🎤 Speaker: {event.speaker}</div>
-        <div className="ecard__row">🏫 Organised by: {event.organisedBy}</div>
+        <div className="ecard__row">🎤 {event.speaker}</div>
+        <div className="ecard__row">🏫 {event.organisedBy}</div>
 
-        <div className="ecard__footer">
+        <div className="ecard__foot">
           <button
             className="ecard__btn"
-            disabled={remainingSeats <= 0}
             style={
-              remainingSeats > 0
-                ? { background: cfg.color, color: "#fff" }
-                : { background: "#eee", color: "#aaa" }
+              isRegistered ? { background: cfg.bg, color: cfg.color }
+              : isFull      ? { background: "#eee", color: "#aaa" }
+              :                { background: cfg.color, color: "#fff" }
             }
-            onClick={(e) => { e.stopPropagation(); handleRegister(); }}
+            onClick={e => { e.stopPropagation(); onOpen(); }}
           >
-            {remainingSeats > 0 ? "Register" : "Full"}
+            {isRegistered ? "✓ Registered" : isFull ? "Full" : "Register"}
           </button>
-          <span className="ecard__count">
-            👥 {event.seatsTaken} / {event.totalSeats} registered
+          <span className="ecard__seats">
+            👥 {event.seatsTaken} / {event.totalSeats}
+            {isFull && <span className="ecard__full-badge">FULL</span>}
           </span>
         </div>
       </div>

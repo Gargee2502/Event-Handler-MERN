@@ -2,27 +2,17 @@
 import React from "react";
 import "./FilterSidebar.css";
 
-function FilterSidebar({ filters, setFilters }) {
-  // ── YOUR ORIGINAL LOGIC (unchanged) ──────────────────────────────────────
-  const handleChange = (e) => {
-    const { name, value, checked } = e.target;
-    setFilters((prev) => {
-      const newValues = checked
-        ? [...(prev[name] || []), value]
-        : (prev[name] || []).filter((v) => v !== value);
-      return { ...prev, [name]: newValues };
-    });
-  };
-  // ─────────────────────────────────────────────────────────────────────────
+const EVENT_TYPES  = ["Hackathon","Workshop","Seminar","Conference","Webinar"];
+const VENUE_TYPES  = ["Online","Offline","Hybrid"];
 
-  const eventTypes = ["Hackathon", "Workshop", "Seminar", "Conference", "Webinar"];
-  const venues     = ["Online", "Offline", "Hybrid"];
-
+function FilterSidebar({ selectedTypes, setSelectedTypes, selectedVenues, setSelectedVenues, orgSearch, setOrgSearch, toggleFilter }) {
   return (
     <aside className="sidebar">
-      <div className="sidebar__header">
+      <div className="sidebar__head">
         <span className="sidebar__title">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+            <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/>
+          </svg>
           Filters
         </span>
         <span className="sidebar__menu">☰</span>
@@ -30,62 +20,36 @@ function FilterSidebar({ filters, setFilters }) {
 
       <div className="sidebar__section">
         <p className="sidebar__label">EVENT TYPE</p>
-        {eventTypes.map((type) => (
-          <CustomCheckbox
-            key={type}
-            label={type}
-            name="eventType"
-            value={type}
-            checked={(filters.eventType || []).includes(type)}
-            onChange={handleChange}
-          />
+        {EVENT_TYPES.map(t => (
+          <CB key={t} label={t} checked={selectedTypes.includes(t)}
+            onChange={() => toggleFilter(t, selectedTypes, setSelectedTypes)} />
         ))}
       </div>
 
       <div className="sidebar__section">
         <p className="sidebar__label">VENUE</p>
-        {venues.map((v) => (
-          <CustomCheckbox
-            key={v}
-            label={v}
-            name="venue"
-            value={v}
-            checked={(filters.venue || []).includes(v)}
-            onChange={handleChange}
-          />
+        {VENUE_TYPES.map(v => (
+          <CB key={v} label={v} checked={selectedVenues.includes(v)}
+            onChange={() => toggleFilter(v, selectedVenues, setSelectedVenues)} />
         ))}
       </div>
 
       <div className="sidebar__section">
         <p className="sidebar__label">ORGANISER</p>
-        <input
-          type="text"
-          placeholder="Search org..."
-          className="sidebar__search"
-          onChange={(e) =>
-            setFilters((prev) => ({ ...prev, organiser: e.target.value }))
-          }
-        />
+        <input className="sidebar__search" placeholder="Search org..."
+          value={orgSearch} onChange={e => setOrgSearch(e.target.value)} />
       </div>
     </aside>
   );
 }
 
-function CustomCheckbox({ label, name, value, checked, onChange }) {
+function CB({ label, checked, onChange }) {
   return (
-    <label className="cb-wrap">
-      <input
-        type="checkbox"
-        name={name}
-        value={value}
-        checked={checked}
-        onChange={onChange}
-        className="cb-input"
-      />
-      <span className={`cb-box ${checked ? "cb-box--checked" : ""}`}>
-        {checked && <span className="cb-tick">✓</span>}
-      </span>
-      <span className="cb-label">{label}</span>
+    <label className="cb">
+      <div className={`cb__box ${checked ? "cb__box--on" : ""}`} onClick={onChange}>
+        {checked && <span className="cb__tick">✓</span>}
+      </div>
+      <span className="cb__lbl">{label}</span>
     </label>
   );
 }

@@ -1,27 +1,29 @@
 // backend/routes/eventRoutes.js
+// ⚠️ ORDER MATTERS — specific routes must come BEFORE /:id
 const express = require("express");
-const router = express.Router();
+const router  = express.Router();
+
 const {
   getEvents,
   getEventById,
-  registerEvent,
   getUserEvents,
-  markAttended
+  markAttended,
 } = require("../controllers/eventController");
 
-// GET all events
-router.get("/", getEvents);
+const {
+  registerForEvent,
+  getUserRegistrations,
+  getParticipants,
+} = require("../controllers/registrationController");
 
-// GET single event
-router.get("/:id", getEventById);
+// ── Specific routes FIRST (before /:id) ──────────────────
+router.get("/user/:userId/registrations",   getUserRegistrations);
+router.get("/admin/participants/:eventId",  getParticipants);
 
-// POST register for event
-router.post("/:id/register", registerEvent);
-
-// GET user's registered events
-router.get("/user/:userId", getUserEvents);
-
-// PUT mark attended
+// ── General routes AFTER ─────────────────────────────────
+router.get("/",          getEvents);
+router.get("/:id",       getEventById);
 router.put("/:id/attended", markAttended);
+router.post("/:id/register", registerForEvent);
 
 module.exports = router;
