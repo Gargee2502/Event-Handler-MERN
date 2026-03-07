@@ -6,7 +6,7 @@ import FilterSidebar from "../components/FilterSidebar.js";
 import EventCard from "../components/EventCard.js";
 import "./UserHomePage.css";
 
-const ITEMS_PER_PAGE = 3;
+const ITEMS_PER_PAGE = 6;
 
 const TYPE_CONFIG = {
   Hackathon:  { color: "#7c6fcd", bg: "#ede9ff", emoji: "🚀", fee: 250 },
@@ -23,13 +23,13 @@ function UserHomePage() {
   const [loading,        setLoading]        = useState(true);
   const [currentPage,    setCurrentPage]    = useState(1);
   const [selectedEvent,  setSelectedEvent]  = useState(null);
-  const [activeTab,      setActiveTab]      = useState("discover"); // "discover" | "registered"
+  const [activeTab,      setActiveTab]      = useState("discover");
   const [selectedTypes,  setSelectedTypes]  = useState([]);
   const [selectedVenues, setSelectedVenues] = useState([]);
   const [orgSearch,      setOrgSearch]      = useState("");
 
   const [userTokens, setUserTokens] = useState(
-    () => Number(localStorage.getItem("userTokens") ?? 1000)
+    () => Number(localStorage.getItem("userTokens") ?? 10000)
   );
   const [registeredIds, setRegisteredIds] = useState(
     () => new Set(JSON.parse(localStorage.getItem("registeredIds") ?? "[]"))
@@ -37,7 +37,7 @@ function UserHomePage() {
 
   useEffect(() => {
     const sync = () => {
-      setUserTokens(Number(localStorage.getItem("userTokens") ?? 1000));
+      setUserTokens(Number(localStorage.getItem("userTokens") ?? 10000));
       setRegisteredIds(new Set(JSON.parse(localStorage.getItem("registeredIds") ?? "[]")));
     };
     window.addEventListener("focus", sync);
@@ -59,11 +59,9 @@ function UserHomePage() {
     setCurrentPage(1);
   };
 
-  // ── Split events into two lists ──────────────────────────────────
   const unregisteredEvents = events.filter(e => !registeredIds.has(e._id));
   const registeredEvents   = events.filter(e =>  registeredIds.has(e._id));
 
-  // ── Apply filters only to discover tab ──────────────────────────
   const applyFilters = (list) => list.filter(e => {
     const tOk = selectedTypes.length  === 0 || selectedTypes.includes(e.eventType);
     const vOk = selectedVenues.length === 0 || selectedVenues.includes(
@@ -75,7 +73,7 @@ function UserHomePage() {
     return tOk && vOk && oOk;
   });
 
-  const displayList   = activeTab === "discover"
+  const displayList = activeTab === "discover"
     ? applyFilters(unregisteredEvents)
     : registeredEvents;
 
@@ -90,130 +88,127 @@ function UserHomePage() {
   };
 
   return (
-    <div className="home-layout">
-      <div className={`home-card ${selectedEvent ? "home-card--split" : ""}`}>
+    <div className="home-root">
 
-        {/* ── Navbar ── */}
-        <nav className="navbar">
-          <div className="navbar__brand">
-            <span className="navbar__dot" />
-            <span className="navbar__logo">Event Handler</span>
-          </div>
-          <div className="navbar__right">
-            <div className="token-badge">
-              <span>🪙</span>
-              <span className="token-badge__count">{userTokens.toLocaleString()}</span>
-              <span className="token-badge__label">tokens</span>
-            </div>
-            <div className="navbar__avatar">JD</div>
-          </div>
-        </nav>
-
-        {/* ── Tabs ── */}
-        <div className="home-tabs">
-          <button
-            className={`tab-btn ${activeTab === "discover" ? "tab-btn--active" : ""}`}
-            onClick={() => switchTab("discover")}
-          >
+      {/* ── Top Navbar ── */}
+      <nav className="top-nav">
+        <div className="top-nav__brand">
+          <span className="top-nav__dot" />
+          <span className="top-nav__logo">Event Handler</span>
+        </div>
+        <div className="top-nav__center">
+          <button className={`top-nav__tab ${activeTab === "discover" ? "top-nav__tab--active" : ""}`}
+            onClick={() => switchTab("discover")}>
             🔍 Discover Events
-            <span className="tab-count">{unregisteredEvents.length}</span>
+            <span className="nav-badge">{unregisteredEvents.length}</span>
           </button>
-          <button
-            className={`tab-btn ${activeTab === "registered" ? "tab-btn--active tab-btn--green" : ""}`}
-            onClick={() => switchTab("registered")}
-          >
+          <button className={`top-nav__tab ${activeTab === "registered" ? "top-nav__tab--active top-nav__tab--green" : ""}`}
+            onClick={() => switchTab("registered")}>
             ✅ My Registrations
-            <span className="tab-count tab-count--green">{registeredEvents.length}</span>
+            <span className="nav-badge nav-badge--green">{registeredEvents.length}</span>
           </button>
         </div>
+        <div className="top-nav__right">
+          <div className="token-pill">
+            <span>🪙</span>
+            <span className="token-pill__val">{userTokens.toLocaleString()}</span>
+            <span className="token-pill__lbl">TOKENS</span>
+          </div>
+          <div className="nav-avatar">JD</div>
+        </div>
+      </nav>
 
-        <div className="home-body">
-          {/* ── Sidebar (only on discover tab) ── */}
-          {activeTab === "discover" && (
-            <FilterSidebar
-              selectedTypes={selectedTypes}
-              setSelectedTypes={t => { setSelectedTypes(t); setCurrentPage(1); }}
-              selectedVenues={selectedVenues}
-              setSelectedVenues={v => { setSelectedVenues(v); setCurrentPage(1); }}
-              orgSearch={orgSearch}
-              setOrgSearch={v => { setOrgSearch(v); setCurrentPage(1); }}
-              toggleFilter={toggleFilter}
-            />
-          )}
+      {/* ── Page heading ── */}
+      <div className="home-heading">
+        <h1>{activeTab === "discover" ? "Manage Events" : "My Registered Events"}</h1>
+        {activeTab === "discover" && activeTags.length > 0 && (
+          <div className="heading-tags">
+            {activeTags.map(t => <span key={t} className="heading-tag">{t}</span>)}
+          </div>
+        )}
+      </div>
 
-          {/* ── Event list ── */}
-          <div className="home-main">
-            {loading ? (
-              [1,2,3].map(i => <div key={i} className="skeleton-row" />)
-            ) : (
-              <>
-                {/* meta row */}
-                <div className="home-meta">
-                  <span className="home-count">
-                    {activeTab === "discover"
-                      ? <><b>{displayList.length}</b> events available{activeTags.length > 0 && " · Filtered by:"}</>
-                      : <><b>{displayList.length}</b> event{displayList.length !== 1 ? "s" : ""} registered</>
-                    }
-                  </span>
-                  {activeTab === "discover" && (
-                    <div className="home-tags">
-                      {activeTags.map(t => <span key={t} className="home-tag">{t}</span>)}
-                    </div>
-                  )}
+      {/* ── Main body ── */}
+      <div className="home-body">
+
+        {/* Sidebar — only on discover */}
+        {activeTab === "discover" && (
+          <FilterSidebar
+            selectedTypes={selectedTypes}
+            setSelectedTypes={t => { setSelectedTypes(t); setCurrentPage(1); }}
+            selectedVenues={selectedVenues}
+            setSelectedVenues={v => { setSelectedVenues(v); setCurrentPage(1); }}
+            orgSearch={orgSearch}
+            setOrgSearch={v => { setOrgSearch(v); setCurrentPage(1); }}
+            toggleFilter={toggleFilter}
+          />
+        )}
+
+        {/* Event grid */}
+        <div className={`home-content ${activeTab === "registered" ? "home-content--full" : ""}`}>
+          {loading ? (
+            <div className="event-grid">
+              {[1,2,3,4,5,6].map(i => <div key={i} className="skeleton-card" />)}
+            </div>
+          ) : (
+            <>
+              <p className="result-count">
+                {activeTab === "discover"
+                  ? <><b>{displayList.length}</b> events available</>
+                  : <><b>{displayList.length}</b> event{displayList.length !== 1 ? "s" : ""} registered</>
+                }
+              </p>
+
+              {paginated.length === 0 && activeTab === "discover" && (
+                <div className="empty-state">No events match your filters 😕</div>
+              )}
+              {paginated.length === 0 && activeTab === "registered" && (
+                <div className="empty-state">
+                  <div style={{ fontSize: 52, marginBottom: 12 }}>🎟️</div>
+                  <p>You haven't registered for any events yet.</p>
+                  <button className="browse-btn" onClick={() => switchTab("discover")}>
+                    Browse Events →
+                  </button>
                 </div>
+              )}
 
-                {/* empty states */}
-                {paginated.length === 0 && activeTab === "discover" && (
-                  <div className="home-empty">No events match your filters 😕</div>
-                )}
-                {paginated.length === 0 && activeTab === "registered" && (
-                  <div className="home-empty">
-                    <div style={{ fontSize: 48, marginBottom: 12 }}>🎟️</div>
-                    <div>You haven't registered for any events yet.</div>
-                    <button className="empty-discover-btn" onClick={() => switchTab("discover")}>
-                      Browse Events →
-                    </button>
-                  </div>
-                )}
-
-                {/* event cards */}
+              <div className="event-grid">
                 {paginated.map((ev, i) => (
                   <EventCard
                     key={ev._id}
                     event={ev}
-                    style={{ animationDelay: `${i * 0.07}s` }}
+                    style={{ animationDelay: `${i * 0.06}s` }}
                     isRegistered={activeTab === "registered"}
                     isSelected={selectedEvent?._id === ev._id}
                     onOpen={() => setSelectedEvent(selectedEvent?._id === ev._id ? null : ev)}
                   />
                 ))}
+              </div>
 
-                {/* pagination */}
-                {totalPages > 1 && (
-                  <div className="pagination">
-                    {Array.from({ length: totalPages }, (_, i) => i + 1).map(p => (
-                      <button key={p}
-                        className={`page-btn ${currentPage === p ? "page-btn--active" : ""}`}
-                        onClick={() => setCurrentPage(p)}>{p}
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </>
-            )}
-          </div>
-
-          {/* ── Detail panel ── */}
-          {selectedEvent && (
-            <DetailPanel
-              event={selectedEvent}
-              userTokens={userTokens}
-              isRegistered={registeredIds.has(selectedEvent._id)}
-              onClose={() => setSelectedEvent(null)}
-              onRegister={() => navigate(`/event/${selectedEvent._id}/register`)}
-            />
+              {totalPages > 1 && (
+                <div className="pagination">
+                  {Array.from({ length: totalPages }, (_, i) => i + 1).map(p => (
+                    <button key={p}
+                      className={`page-btn ${currentPage === p ? "page-btn--active" : ""}`}
+                      onClick={() => setCurrentPage(p)}>{p}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </>
           )}
         </div>
+
+        {/* Detail panel */}
+        {selectedEvent && (
+          <DetailPanel
+            event={selectedEvent}
+            userTokens={userTokens}
+            isRegistered={registeredIds.has(selectedEvent._id)}
+            onClose={() => setSelectedEvent(null)}
+            onRegister={() => navigate(`/event/${selectedEvent._id}/register`)}
+          />
+        )}
       </div>
     </div>
   );
@@ -222,30 +217,32 @@ function UserHomePage() {
 // ── Detail Panel ─────────────────────────────────────────────────────
 function DetailPanel({ event, userTokens, isRegistered, onClose, onRegister }) {
   const cfg       = TYPE_CONFIG[event.eventType] || TYPE_CONFIG.Seminar;
-  const fee       = (event.registrationFee > 0) ? event.registrationFee : cfg.fee;
+  const fee       = event.registrationFee > 0 ? event.registrationFee : cfg.fee;
   const seatsLeft = event.totalSeats - event.seatsTaken;
   const isFull    = seatsLeft <= 0;
   const canAfford = userTokens >= fee;
 
   return (
     <div className="detail-panel">
-      <div className="dp-hero" style={{ background: `linear-gradient(135deg,${cfg.bg},#f0eeff)` }}>
+
+      {/* Image or coloured banner */}
+      <div className="dp-banner" style={{ background: `linear-gradient(135deg,${cfg.bg},#f0eeff)` }}>
+        {event.eventImage
+          ? <img src={event.eventImage} alt={event.eventName} className="dp-banner__img" />
+          : <span className="dp-banner__emoji">{cfg.emoji}</span>
+        }
         <button className="dp-close" onClick={onClose}>✕</button>
-        <span className="dp-emoji">{cfg.emoji}</span>
-        <span className="dp-tag" style={{ color: cfg.color, background: "rgba(255,255,255,0.82)" }}>
+        <span className="dp-type-tag" style={{ color: cfg.color, background: "rgba(255,255,255,0.88)" }}>
           {event.eventType}
         </span>
       </div>
 
       <div className="dp-body">
         <div className="dp-dots">
-          <span style={{ background: "#ff5f57" }} />
-          <span style={{ background: "#febc2e" }} />
-          <span style={{ background: "#28c840" }} />
+          <span style={{ background: "#ff5f57" }} /><span style={{ background: "#febc2e" }} /><span style={{ background: "#28c840" }} />
         </div>
 
         <h2 className="dp-title">{event.eventName}</h2>
-
         <div className="dp-row">
           <span>📅 {event.date}</span>
           {event.time && <><span className="dp-div">|</span><span>⏰ {event.time}</span></>}
@@ -258,7 +255,7 @@ function DetailPanel({ event, userTokens, isRegistered, onClose, onRegister }) {
           <div>🎤 <b>{event.speaker}</b></div>
           <div>🏫 <b>{event.organisedBy}</b></div>
           <div>
-            👥 {event.seatsTaken} / {event.totalSeats} &nbsp;·&nbsp;
+            👥 {event.seatsTaken}/{event.totalSeats} &nbsp;·&nbsp;
             <b style={{ color: seatsLeft > 20 ? "#2d8a4e" : seatsLeft > 0 ? "#c07a00" : "#c0392b" }}>
               {isFull ? "FULL" : `${seatsLeft} left`}
             </b>
@@ -266,25 +263,21 @@ function DetailPanel({ event, userTokens, isRegistered, onClose, onRegister }) {
         </div>
 
         <div className="dp-cost">
-          <span>🪙 <b>{fee}</b> tokens fee</span>
+          <span>🪙 <b>{fee}</b> tokens</span>
           <span style={{ color: canAfford ? "#2d8a4e" : "#c0392b", fontWeight: 700 }}>
             Balance: {userTokens} 🪙
           </span>
         </div>
 
-        {isRegistered ? (
-          <button className="dp-btn dp-btn--done" disabled>✅ Already Registered</button>
-        ) : (
-          <button
-            className="dp-btn dp-btn--primary"
-            style={{ background: (!canAfford || isFull) ? "#ccc" : cfg.color }}
-            disabled={!canAfford || isFull}
-            onClick={onRegister}
-          >
-            {isFull ? "Event Full" : !canAfford ? "Insufficient Tokens" : "Fill Registration Form →"}
-          </button>
-        )}
-
+        {isRegistered
+          ? <button className="dp-btn dp-btn--done" disabled>✅ Already Registered</button>
+          : <button className="dp-btn dp-btn--primary"
+              style={{ background: (!canAfford || isFull) ? "#ccc" : cfg.color }}
+              disabled={!canAfford || isFull}
+              onClick={onRegister}>
+              {isFull ? "Event Full" : !canAfford ? "Insufficient Tokens" : "Fill Registration Form →"}
+            </button>
+        }
         <button className="dp-btn dp-btn--ghost" onClick={onClose}>← Close</button>
       </div>
     </div>
