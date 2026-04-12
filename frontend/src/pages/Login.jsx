@@ -20,7 +20,7 @@ function Login() {
             localStorage.setItem("token", res.data.token);
             localStorage.setItem("user", JSON.stringify(res.data.user));
 
-            navigate("/profile");
+            navigate("/home");
         } catch {
             // Set the custom error message instead of triggering an alert
             setError("Login failed. Please check your credentials.");

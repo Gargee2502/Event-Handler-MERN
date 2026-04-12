@@ -1,4 +1,5 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 # React + Vite
 
@@ -19,6 +20,8 @@ If you are developing a production application, we recommend using TypeScript wi
 
 =======
 >>>>>>> 1b73844db2589306165238d7d286b4112bf87721
+=======
+>>>>>>> gargee-event-registration
 # Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).

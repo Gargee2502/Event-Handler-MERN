@@ -58,7 +58,7 @@ function VerifyOTP() {
             const res = await API.post("/auth/verify-otp", { email, otp });
             localStorage.setItem("token", res.data.token);
             localStorage.setItem("user", JSON.stringify(res.data.user));
-            navigate("/profile");
+            navigate("/home");
         } catch (err) {
             setNotification({ text: err.response?.data?.message || "Invalid OTP. Please try again.", type: "error" });
         } finally {

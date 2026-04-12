@@ -1,3 +1,4 @@
+/* --- Default App Styles (from HEAD) --- */
 .App {
   text-align: center;
 }
@@ -46,6 +47,151 @@
 
   to {
     transform: translateX(-50%) translateY(0);
+    opacity: 1;
+  }
+}
+
+/* --- Event Registration Styles (from gargee-event-registration) --- */
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800;900&display=swap');
+
+:root {
+  --purple: #5b4fcf;
+  --purple-light: #ede9ff;
+  --green: #2d8a4e;
+  --amber: #92400e;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Nunito', 'Segoe UI', sans-serif;
+  background: linear-gradient(135deg, #f3f1ff 0%, #edf5ff 100%);
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* shared layout wrapper */
+.page-layout {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f3f1ff 0%, #edf5ff 100%);
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 28px 16px 48px;
+}
+
+/* token badge — reused on every page */
+.token-badge {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  background: linear-gradient(135deg, #fef3c7, #fde68a);
+  border: 1.5px solid #fbbf24;
+  border-radius: 30px;
+  padding: 5px 13px;
+  cursor: default;
+}
+
+.token-badge__count {
+  font-size: 14px;
+  font-weight: 900;
+  color: var(--amber);
+}
+
+.token-badge__label {
+  font-size: 10px;
+  font-weight: 700;
+  color: #b45309;
+  text-transform: uppercase;
+  letter-spacing: .4px;
+}
+
+/* shared button styles */
+.btn {
+  width: 100%;
+  border: none;
+  border-radius: 13px;
+  padding: 13px 0;
+  font-weight: 900;
+  font-size: 14.5px;
+  cursor: pointer;
+  font-family: 'Nunito', sans-serif;
+  transition: opacity .18s, transform .12s;
+  display: block;
+  margin-bottom: 10px;
+}
+
+.btn:hover:not(:disabled) {
+  opacity: .88;
+  transform: scale(1.01);
+}
+
+.btn:disabled {
+  opacity: .5;
+  cursor: not-allowed;
+}
+
+.btn--primary {
+  color: #fff;
+}
+
+.btn--ghost {
+  background: #f0eeff;
+  color: var(--purple);
+  border: 1.5px solid #ddd8f8;
+}
+
+.btn--confirm {
+  background: linear-gradient(135deg, #2d8a4e, #27ae60);
+  color: #fff;
+}
+
+.btn--registered {
+  background: #e8ffe8;
+  color: var(--green);
+  border: 1.5px solid #bbf7d0;
+}
+
+.btn-row {
+  display: flex;
+  gap: 10px;
+}
+
+.btn-row .btn {
+  margin-bottom: 0;
+  flex: 1;
+}
+
+.btn-row .btn--confirm {
+  flex: 1.6;
+}
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pop {
+  from {
+    transform: scale(0.5);
+    opacity: 0;
+  }
+
+  to {
+    transform: scale(1);
     opacity: 1;
   }
 }
