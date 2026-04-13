@@ -1,8 +1,8 @@
 // frontend/src/pages/Participants.js
 import React, { useState } from 'react';
-import AdminNavbar from '../components/Admin/AdminNavbar';
-import Sidebar from '../components/Admin/Sidebar';
-import StatCard from '../components/Admin/StatCard';
+import AdminNavbar from '../../components/Admin/AdminNavbar';
+import Sidebar from '../../components/Admin/Sidebar';
+import StatCard from '../../components/Admin/StatCard';
 import { Download, Mail } from 'lucide-react';
 
 const Participants = () => {

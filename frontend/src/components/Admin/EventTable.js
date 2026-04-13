@@ -8,54 +8,34 @@ import {
   MapPin, 
   Clock, 
   Calendar, 
-  Image as ImageIcon 
+  Image as ImageIcon,
+  Tag
 } from 'lucide-react';
 
-const EventTable = ({ onDeleteClick }) => {
+const EventTable = ({ events, onDeleteClick }) => {
   const navigate = useNavigate();
 
-  // Expanded mock data to make the UI look appealing
-  const events = [
-    { 
-      name: "HackForge 2025", 
-      description: "An epic 48-hour hackathon to build world-changing solutions for global sustainability.",
-      totalSeats: 200, seatsTaken: 185, participants: 185,
-      host: "TechClub IITD", speaker: "Dr. Rahul Sharma",
-      date: "Mar 15, 2025", time: "09:00 AM", venue: "Main Auditorium",
-      posterBg: "#ddd6f7" // Lavender
-    },
-    { 
-      name: "AI & Ethics Talk", 
-      description: "A deep dive into the future of Artificial Intelligence and its social impact in 2026.",
-      totalSeats: 150, seatsTaken: 45, participants: 45,
-      host: "Innovate Hub", speaker: "Priya Mehta (Anthropic)",
-      date: "Apr 05, 2025", time: "04:30 PM", venue: "Seminar Hall B",
-      posterBg: "#c5e8d8" // Mint
-    },
-    { 
-      name: "Startup Funding 101", 
-      description: "Learn how to pitch your ideas to VCs and secure your first round of seed funding.",
-      totalSeats: 100, seatsTaken: 95, participants: 95,
-      host: "E-Cell Global", speaker: "Aniket Verma",
-      date: "May 12, 2025", time: "11:00 AM", venue: "Online (Google Meet)",
-      posterBg: "#fad5b0" // Peach
-    },
-    { 
-      name: "Web3 Developer Summit", 
-      description: "Master Smart Contracts and decentralized apps in this hands-on technical summit.",
-      totalSeats: 300, seatsTaken: 150, participants: 150,
-      host: "Blockchain Society", speaker: "Sarah Jenkins",
-      date: "June 20, 2025", time: "10:00 AM", venue: "City Convention Center",
-      posterBg: "#bfe3f5" // Sky Blue
+  const getBadgeStyle = (type) => {
+    switch (type) {
+      case 'Hackathon':
+        return { bg: '#fff5f5', color: '#e8615a', border: '#f4c5c5' };
+      case 'Workshop':
+        return { bg: '#f0eefc', color: '#6b5ce7', border: '#ddd6f7' };
+      case 'Seminar':
+        return { bg: '#f0fff4', color: '#2cbf8a', border: '#c6f6d5' };
+      default:
+        return { bg: '#fafbff', color: '#7a7a8c', border: '#f0eefc' };
     }
-  ];
+  };
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-      {events.map((event, index) => {
+      {events && events.map((event, index) => {
         const seatsRem = event.totalSeats - event.seatsTaken;
+        const badge = getBadgeStyle(event.eventType);
+
         return (
-          <div key={index} style={{ 
+          <div key={event._id || index} style={{ 
             background: 'white', borderRadius: '15px', padding: '20px', 
             display: 'flex', gap: '20px', boxShadow: '0 4px 12px rgba(0,0,0,0.05)',
             border: '1px solid #f0eefc', transition: 'transform 0.2s ease-in-out'
@@ -63,23 +43,49 @@ const EventTable = ({ onDeleteClick }) => {
           onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.01)'}
           onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
           >
-            {/* Poster Placeholder with dynamic background */}
+            {/* --- UPDATED: Dynamic Poster Section --- */}
             <div style={{ 
-              width: '180px', height: '230px', background: event.posterBg, 
+              width: '180px', height: '230px', background: '#ddd6f7', 
               borderRadius: '10px', display: 'flex', alignItems: 'center', 
-              justifyContent: 'center', color: '#6b5ce7', flexShrink: 0 
+              justifyContent: 'center', color: '#6b5ce7', flexShrink: 0,
+              overflow: 'hidden' // Ensures image doesn't spill out of rounded corners
             }}>
-              <ImageIcon size={40} />
+              {event.eventImage ? (
+                <img 
+                  src={event.eventImage} 
+                  alt={event.eventName} 
+                  style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
+                />
+              ) : (
+                <ImageIcon size={40} />
+              )}
             </div>
 
             {/* Content Details */}
             <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                <h2 style={{ fontFamily: 'Playfair Display, serif', fontSize: '1.4rem', color: '#2d2d2d' }}>{event.name}</h2>
-                <span style={{ fontSize: '0.65rem', background: '#f0eefc', padding: '4px 8px', borderRadius: '10px', color: '#6b5ce7', fontWeight: 'bold' }}>EVENT ID: #{100 + index}</span>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                  <div style={{ 
+                    display: 'inline-flex', alignItems: 'center', gap: '4px',
+                    fontSize: '0.6rem', fontWeight: '800', textTransform: 'uppercase',
+                    padding: '4px 10px', borderRadius: '6px', width: 'fit-content',
+                    background: badge.bg, color: badge.color, border: `1px solid ${badge.border}`
+                  }}>
+                    <Tag size={10} /> {event.eventType || 'N/A'}
+                  </div>
+                  <h2 style={{ fontFamily: 'Playfair Display, serif', fontSize: '1.4rem', color: '#2d2d2d', margin: 0 }}>
+                    {event.eventName}
+                  </h2>
+                </div>
+                <span style={{ fontSize: '0.65rem', background: '#f0eefc', padding: '4px 8px', borderRadius: '10px', color: '#6b5ce7', fontWeight: 'bold' }}>
+                  EVENT ID: {event.eventID || `#${100 + index}`}
+                </span>
               </div>
               
-              <p style={{ fontSize: '0.85rem', color: '#7a7a8c', lineHeight: '1.4', fontStyle: 'italic' }}>"{event.description}"</p>
+              <p style={{ fontSize: '0.85rem', color: '#7a7a8c', lineHeight: '1.4', fontStyle: 'italic' }}>
+                "{event.eventDescription}"
+              </p>
 
               {/* Seats Row */}
               <div style={{ display: 'flex', gap: '30px', background: '#fafbff', padding: '12px', borderRadius: '10px', border: '1px solid #f0eefc' }}>
@@ -97,39 +103,34 @@ const EventTable = ({ onDeleteClick }) => {
                 </div>
               </div>
 
-              {/* Participant & Host Data */}
+              {/* Logistics */}
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '15px', fontSize: '0.8rem', color: '#2d2d2d' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}><Users size={14} color="#6b5ce7"/> <strong>{event.participants} Participants Registered</strong></div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}><Users size={14} color="#6b5ce7"/> <strong>{event.totalParticipants || 0} Registered</strong></div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}><Calendar size={14} color="#6b5ce7"/> {event.date} | <Clock size={14} color="#6b5ce7"/> {event.time}</div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}><MapPin size={14} color="#6b5ce7"/> {event.venue}</div>
               </div>
 
-              <div style={{ fontSize: '0.8rem', borderTop: '1px solid #f0eefc', paddingTop: '10px' }}>
-                <span style={{ color: '#7a7a8c' }}>Organised by:</span> <strong>{event.host}</strong> &nbsp; | &nbsp; <span style={{ color: '#7a7a8c' }}>Speaker:</span> <strong>{event.speaker}</strong>
-              </div>
-
-              {/* Actions row updated with three buttons */}
-              <div style={{ display: 'flex', gap: '10px', marginTop: 'auto' }}>
+              {/* Actions row */}
+              <div style={{ display: 'flex', gap: '10px', marginTop: 'auto', borderTop: '1px solid #f0eefc', paddingTop: '15px' }}>
                 <button 
-                  onClick={() => navigate('/edit-event')}
+                  onClick={() => navigate(`/edit-event/${event._id}`)} 
                   style={{ flex: 1, padding: '10px', borderRadius: '8px', background: '#ddd6f7', color: '#6b5ce7', border: 'none', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
                 >
                   <Edit3 size={16} /> Edit Details
                 </button>
                 
-                {/* NEW BUTTON: Show Participants */}
                 <button 
-                  onClick={() => navigate('/participants')}
+                  onClick={() => navigate(`/participants/${event._id}`)}
                   style={{ flex: 1, padding: '10px', borderRadius: '8px', background: '#bfe3f5', color: '#1a5a7a', border: 'none', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
                 >
-                  <Users size={16} /> Show Participants
+                  <Users size={16} /> Participants
                 </button>
 
                 <button 
-                  onClick={() => onDeleteClick(event.name)}
+                  onClick={() => onDeleteClick(event)}
                   style={{ flex: 1, padding: '10px', borderRadius: '8px', background: '#fff5f5', color: '#e8615a', border: 'none', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
                 >
-                  <Trash2 size={16} /> Delete Event
+                  <Trash2 size={16} /> Delete
                 </button>
               </div>
             </div>

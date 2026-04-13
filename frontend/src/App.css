@@ -1,3 +1,16 @@
+:root {
+  --bg: #f7f3ef;
+  --lavender: #f0eefc;
+  --accent: #6b5ce7;
+  --muted: #7a7a8c;
+  --peach: #f4c5c5;
+  --lilac: #ddd6f7;
+  --pink: #fdecd8;
+  --sky: #bfe3f5;
+  --mint: #e0f5ed;
+  --shadow2: 0 4px 12px rgba(107, 92, 231, 0.08);
+}
+
 .App {
   text-align: center;
 }
